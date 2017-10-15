@@ -27,9 +27,16 @@ public class MapGenerator : MonoBehaviour
     private Queue<MapThreadInfo<float[,]>> mapDataThreadInfoQueue = new Queue<MapThreadInfo<float[,]>>();
     private Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
 
+    private float[,] m_falloffMap = null;
+
     public TerrainData TerrainData
     {
         get { return m_terrainData; }
+    }
+
+    private void Awake()
+    {
+        m_falloffMap = FalloffMapGenerator.GenerateFalloffMap(MapChunkSize() + 2, MapChunkSize() + 2);
     }
 
     private void Start()
@@ -51,11 +58,11 @@ public class MapGenerator : MonoBehaviour
         m_display.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, m_terrainData.MeshHeightMultiplier, m_terrainData.MeshHeightCurve, m_editorPreviewLOD));
     }
 
-    public void RequestMapData(Vector2 centre, Action<float[,]> callback)
+    public void RequestMapData(Vector2 centre, bool useFalloffMap, Action<float[,]> callback)
     {
         ThreadStart threadStart = () =>
         {
-            MapDataThread(centre, callback);
+            MapDataThread(centre, useFalloffMap, callback);
         };
 
         new Thread(threadStart).Start();
@@ -68,13 +75,37 @@ public class MapGenerator : MonoBehaviour
         new Thread(threadStart).Start();
     }
 
-    private void MapDataThread(Vector2 centre, Action<float[,]> callback)
+    private void MapDataThread(Vector2 centre, bool useFalloffMap, Action<float[,]> callback)
     {
-        float[,] mapData = Noise.GenerateNoiseMap(MapChunkSize() + 2, MapChunkSize() + 2, m_noiseData.Seed, m_noiseData.NoiseScale,
+        int size = MapChunkSize() + 2;
+        float[,] mapData = Noise.GenerateNoiseMap(size, size, m_noiseData.Seed, m_noiseData.NoiseScale,
             m_noiseData.Octaves, m_noiseData.Persistance, m_noiseData.Lacunarity, m_noiseData.Offset + centre, m_noiseData.NormalizeMode);
+
+        if (useFalloffMap)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                for (int y = 0; y < size; y++)
+                {
+                    mapData[x, y] = Mathf.Clamp01(mapData[x, y] - m_falloffMap[x, y]);
+                }
+            }
+        }
+
         lock (mapDataThreadInfoQueue)
         {
             mapDataThreadInfoQueue.Enqueue(new MapThreadInfo<float[,]>(callback, mapData));
+        }
+    }
+
+    private void ApplyFalloffMap(float[,] mapData)
+    {
+        for (int x = 0; x < MapChunkSize() + 2; x++)
+        {
+            for (int y = 0; y < MapChunkSize() + 2; y++)
+            {
+                mapData[x, y] = Mathf.Clamp01(mapData[x, y] - m_falloffMap[x, y]);
+            }
         }
     }
 

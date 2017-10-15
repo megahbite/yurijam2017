@@ -145,7 +145,7 @@ public class EndlessTerrain : MonoBehaviour
                     m_lodMeshes[i].HasUpdated += UpdateCollisionMesh;
             }
 
-            s_mapGenerator.RequestMapData(m_position, (heightMap) =>
+            s_mapGenerator.RequestMapData(m_position, m_coord == Vector2.zero, (heightMap) =>
             {
                 m_heightMap = heightMap;
                 m_heightDataReceived = true;
