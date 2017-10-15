@@ -23,7 +23,7 @@ public static class FalloffMapGenerator
     }
 
     const float A = 3f;
-    const float B = 2.2f;
+    const float B = 0.5f;
 
     private static float Evaluate(float value)
     {

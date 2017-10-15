@@ -55,14 +55,16 @@ public class MapGenerator : MonoBehaviour
         float[,] noiseMap = Noise.GenerateNoiseMap(MapChunkSize() + 2, MapChunkSize() + 2, m_noiseData.Seed, m_noiseData.NoiseScale, 
             m_noiseData.Octaves, m_noiseData.Persistance, m_noiseData.Lacunarity, m_noiseData.Offset, m_noiseData.NormalizeMode);
 
-        m_display.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, m_terrainData.MeshHeightMultiplier, m_terrainData.MeshHeightCurve, m_editorPreviewLOD));
+        ApplyFalloffMap(MapChunkSize() + 2, noiseMap);
+
+        m_display.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, m_terrainData.MeshHeightMultiplier, m_terrainData.MeshHeightCurve, m_editorPreviewLOD), m_terrainData.UniformScale);
     }
 
-    public void RequestMapData(Vector2 centre, bool useFalloffMap, Action<float[,]> callback)
+    public void RequestMapData(Vector2 centre, Action<float[,]> callback)
     {
         ThreadStart threadStart = () =>
         {
-            MapDataThread(centre, useFalloffMap, callback);
+            MapDataThread(centre, callback);
         };
 
         new Thread(threadStart).Start();
@@ -75,16 +77,11 @@ public class MapGenerator : MonoBehaviour
         new Thread(threadStart).Start();
     }
 
-    private void MapDataThread(Vector2 centre, bool useFalloffMap, Action<float[,]> callback)
+    private void MapDataThread(Vector2 centre, Action<float[,]> callback)
     {
         int size = MapChunkSize() + 2;
         float[,] mapData = Noise.GenerateNoiseMap(size, size, m_noiseData.Seed, m_noiseData.NoiseScale,
             m_noiseData.Octaves, m_noiseData.Persistance, m_noiseData.Lacunarity, m_noiseData.Offset + centre, m_noiseData.NormalizeMode);
-
-        if (useFalloffMap)
-        {
-            ApplyFalloffMap(size, mapData);
-        }
 
         lock (mapDataThreadInfoQueue)
         {
@@ -94,6 +91,9 @@ public class MapGenerator : MonoBehaviour
 
     private void ApplyFalloffMap(int size, float[,] mapData)
     {
+        if (m_falloffMap == null)
+            m_falloffMap = FalloffMapGenerator.GenerateFalloffMap(size, size);
+
         for (int x = 0; x < size; x++)
         {
             for (int y = 0; y < size; y++)

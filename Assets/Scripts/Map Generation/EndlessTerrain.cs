@@ -77,6 +77,7 @@ public class EndlessTerrain : MonoBehaviour
             {
 
                 Vector2 viewedChunkCoord = new Vector2(currentChunkCoordX + xOffset, currentChunkCoordY + yOffset);
+                if (viewedChunkCoord == Vector2.zero) continue; // Our home chunk is already generated
                 if (alreadyUpdatedChunkCoords.Contains(viewedChunkCoord)) continue;
 
                 if (s_terrainChunkDictionary.ContainsKey(viewedChunkCoord))
@@ -145,7 +146,7 @@ public class EndlessTerrain : MonoBehaviour
                     m_lodMeshes[i].HasUpdated += UpdateCollisionMesh;
             }
 
-            s_mapGenerator.RequestMapData(m_position, m_coord == Vector2.zero, (heightMap) =>
+            s_mapGenerator.RequestMapData(m_position, (heightMap) =>
             {
                 m_heightMap = heightMap;
                 m_heightDataReceived = true;
