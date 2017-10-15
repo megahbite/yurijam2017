@@ -83,13 +83,7 @@ public class MapGenerator : MonoBehaviour
 
         if (useFalloffMap)
         {
-            for (int x = 0; x < size; x++)
-            {
-                for (int y = 0; y < size; y++)
-                {
-                    mapData[x, y] = Mathf.Clamp01(mapData[x, y] - m_falloffMap[x, y]);
-                }
-            }
+            ApplyFalloffMap(size, mapData);
         }
 
         lock (mapDataThreadInfoQueue)
@@ -98,11 +92,11 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    private void ApplyFalloffMap(float[,] mapData)
+    private void ApplyFalloffMap(int size, float[,] mapData)
     {
-        for (int x = 0; x < MapChunkSize() + 2; x++)
+        for (int x = 0; x < size; x++)
         {
-            for (int y = 0; y < MapChunkSize() + 2; y++)
+            for (int y = 0; y < size; y++)
             {
                 mapData[x, y] = Mathf.Clamp01(mapData[x, y] - m_falloffMap[x, y]);
             }
