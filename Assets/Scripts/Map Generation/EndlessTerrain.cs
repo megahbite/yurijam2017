@@ -128,6 +128,7 @@ public class EndlessTerrain : MonoBehaviour
             Vector3 positionV3 = new Vector3(m_position.x, 0, m_position.y);
 
             m_meshObject = new GameObject("Terrain Chunk");
+            m_meshObject.layer = LayerMask.NameToLayer("Terrain");
             m_meshRenderer = m_meshObject.AddComponent<MeshRenderer>();
             m_meshFilter = m_meshObject.AddComponent<MeshFilter>();
             m_meshCollider = m_meshObject.AddComponent<MeshCollider>();
