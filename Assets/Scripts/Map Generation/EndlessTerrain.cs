@@ -110,6 +110,9 @@ public class EndlessTerrain : MonoBehaviour
         int m_colliderLODIndex;
 
         float[,] m_heightMap;
+
+        Dictionary<string, float[,]> m_resourceMaps;
+
         bool m_heightDataReceived = false, m_hasSetCollider = false;
         int m_prevLODIndex = -1;
 
@@ -118,7 +121,7 @@ public class EndlessTerrain : MonoBehaviour
             get { return m_coord; }
         }
 
-        public TerrainChunk(Vector2 coord, int size, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Material material)
+        public TerrainChunk(Vector2 coord, int size, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Material material/*, ResourceData[] resources*/)
         {
             m_coord = coord;
             m_detailLevels = detailLevels;
@@ -146,12 +149,17 @@ public class EndlessTerrain : MonoBehaviour
                     m_lodMeshes[i].HasUpdated += UpdateCollisionMesh;
             }
 
-            s_mapGenerator.RequestMapData(m_position, (heightMap) =>
+            s_mapGenerator.BackgroundTerrainChunkService.RequestMapData(m_position, (heightMap) =>
             {
                 m_heightMap = heightMap;
                 m_heightDataReceived = true;
                 UpdateTerrainChunk();
             });
+
+            //foreach (var resource in resources)
+            //{
+            //    s_mapGenerator.
+            //}
         }
 
         public void UpdateTerrainChunk()
@@ -246,7 +254,7 @@ public class EndlessTerrain : MonoBehaviour
         public void RequestMesh(float[,] heightMap)
         {
             m_hasRequestedMesh = true;
-            s_mapGenerator.RequestMeshData(heightMap, m_lod, (meshData) =>
+            s_mapGenerator.BackgroundTerrainChunkService.RequestMeshData(heightMap, m_lod, (meshData) =>
             {
                 m_mesh = meshData.CreateMesh();
                 m_hasMesh = true;
