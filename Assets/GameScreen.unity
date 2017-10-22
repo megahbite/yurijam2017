@@ -514,7 +514,6 @@ GameObject:
   - component: {fileID: 1346748089}
   - component: {fileID: 1346748088}
   - component: {fileID: 1346748091}
-  - component: {fileID: 1346748092}
   m_Layer: 0
   m_Name: Map Generator
   m_TagString: Untagged
@@ -584,21 +583,6 @@ MonoBehaviour:
     ViewDistanceThreshold: 400
   - LOD: 4
     ViewDistanceThreshold: 500
---- !u!114 &1346748092
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1346748087}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35d7b562801dd974f9cb33100bcfd473, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_resources:
-  - {fileID: 11400000, guid: ac4daca3cef13c6458311a0ca7293faf, type: 2}
-  m_terrainMaterial: {fileID: 2100000, guid: 492ac84fddab52f4eb0ce400d7cf48aa, type: 2}
-  m_mapGenerator: {fileID: 0}
 --- !u!43 &1507670499
 Mesh:
   m_ObjectHideFlags: 0
